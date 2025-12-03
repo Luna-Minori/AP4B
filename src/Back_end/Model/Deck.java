@@ -1,4 +1,4 @@
-package Back_end;
+package Back_end.Model;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -14,8 +14,10 @@ public class Deck extends ArrayList<Card> {
 		super();
 		// Create 12 sets of 3 cards with values from 1 to 12
 		for (int i = 0; i < 12; i++) {
+			Card.Event card = Card.Event.values()[i];
 			for (int j = 0; j < 3; j++) {
-				this.add(new Card(Card.Event.values()[i]));
+				this.add(new Card(card));
+				System.out.println(card.toString());
 			}
 		}
 		// Shuffle the deck
@@ -29,7 +31,7 @@ public class Deck extends ArrayList<Card> {
 	public void shuffle() {
 		Random rand = new Random();
 		for (int i = this.size() - 1; i > 0; i--) {
-			int j = rand.nextInt(this.size());
+			int j = rand.nextInt(i + 1);
 			Card temp = this.get(i);
 			this.set(i, this.get(j));
 			this.set(j, temp);

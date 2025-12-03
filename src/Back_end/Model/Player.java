@@ -1,7 +1,6 @@
-package Back_end;
+package Back_end.Model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class Player {
 
@@ -30,7 +29,7 @@ public class Player {
         askedCards.add(new PlayerCardRequest(p, card));
     }
 
-    public void addAskedCard(Card card, Board b) {
+    public void addAskedCard(Card card, Model b) {
         askedCards.add(new PlayerCardRequest(b, card));
     }
 
@@ -131,7 +130,7 @@ public class Player {
 
     public void affHand (){
         for(int i = 0; i < hand.size(); i++){
-            System.out.println(i + " : " + hand.get(i).toString());
+            System.out.println(i + " : " + hand.get(i).getValue().toString());
         }
     }
 

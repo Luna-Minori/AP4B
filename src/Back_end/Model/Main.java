@@ -1,4 +1,4 @@
-package Back_end;
+package Back_end.Model;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -8,7 +8,7 @@ public class Main {
 		Scanner scanner = new Scanner(System.in); // Declare scanner once here
 
 		// Proceed with the rest of your game logic
-		Board board = new Board();
+		Model board = new Model();
 		int nb_player = getnumberPlayers(scanner);
 		for (int i = 0; i < nb_player; i++) {
 			board.addPlayer(new Player(getname(scanner), true));
@@ -44,6 +44,7 @@ public class Main {
                                     case 1:
                                         board.getPlayers().get(i).addAskedCard(board.getPlayers().get(i).showCard(getindex(board.getPlayers().get(i).getHand().size(), scanner)), board.getPlayers().get(i));
                                         board.getPlayers().get(i).cardPlayble(board.getPlayers().get(i).getAskedCards().getLast().getCard().getIntValue());
+                                        System.out.println("Carte montrée + " + board.getPlayers().get(i).getAskedCards().getLast().getCard().toString());
                                         break;
                                     case 2: // joue une carte
                                         endask = false;
@@ -79,12 +80,13 @@ public class Main {
                                             }
                                         } while (!endask);
                                         board.getPlayers().get(i).addAskedCard(board.getPlayers().get(i).askCard(lowest, board.getPlayers().get(index)), board.getPlayers().get(index));
+                                        System.out.println("Carte montrée + " + board.getPlayers().get(i).getAskedCards().getLast().getCard().toString());
                                         break;
                                     case 3:
                                         endask = false;
                                         do {
                                             try {
-                                                System.out.print("Choisissez une carte (1 à " + board.getMiddleDeck().size() + ") : ");
+                                                System.out.print("Choisissez une carte (1 à " + board.getMiddleCard().size() + ") : ");
                                                 int choice = scanner.nextInt();
                                                 index = choice - 1;
 
@@ -98,7 +100,7 @@ public class Main {
                                                 System.out.println(e.getMessage());
                                             }
                                         } while (!endask);
-                                        board.getPlayers().get(i).addAskedCard(board.getMiddleDeck().get(index), board);
+                                        board.getPlayers().get(i).addAskedCard(board.getMiddleCard().get(index), board);
                                     default:
                                         break;
                                 }

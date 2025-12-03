@@ -1,9 +1,9 @@
-package Back_end;
+package Back_end.Model;
 
 public class PlayerCardRequest {
     private final Player player;
     private final Card card;
-    private final Board board;
+    private final Model board;
 
     public PlayerCardRequest(Player player, Card card) {
         this.player = player;
@@ -11,7 +11,7 @@ public class PlayerCardRequest {
         this.board = null;
     }
 
-    public PlayerCardRequest(Board b, Card card) {
+    public PlayerCardRequest(Model b, Card card) {
         this.board = b;
         this.card = card;
         this.player = null;

@@ -1,4 +1,4 @@
-package Back_end;
+package Back_end.Model;
 
 import java.util.Comparator;
 
@@ -17,7 +17,7 @@ public class Card implements Comparator<Card> {
         Gala, // novembre
         Tribut, // décembre
     }
-    public static Event value;
+    public Event value;
     public Card(Event value) {
         this.value = value;
     }
