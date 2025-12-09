@@ -1,0 +1,68 @@
+
+#menuBox {
+    -fx-padding: 15 30;
+}
+
+.menu-button {
+    -fx-spacing: 40;
+    -fx-padding: 20;
+    -fx-font-size: 45px;
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-font-smoothing-type: visible;
+    -fx-cursor: hand;
+    -fx-border-radius: 20px;
+}
+
+.menu-button:hover {
+    -fx-background-color: rgba(255,255,255,0.2);
+}
+
+#middle-card-field {
+}
+
+.handPanel {
+    -fx-background-radius: 30px;
+    -fx-padding: 0 30px 0 30px;
+}
+
+.middleCardPanel {
+    /* pas touche c'était une galère à faire marcher */
+    -fx-shape: "M 20 0 L 280 0 L 300 20 L 300 130 L 280 150 L 20 150 L 0 130 L 0 20 Z";
+    -fx-background-color:
+            cyan,
+            rgba(0, 10, 20, 1);
+
+
+    -fx-background-insets: 0, 2, 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 255, 255, 0.8), 20, 0.5, 0, 0);
+    -fx-padding: 30 20 30 20;
+}
+.playerPanel {
+    /* pas touche aussi c'était une galère à faire marcher */
+    -fx-shape: "M 20 0 L 100 0 L 110 10 L 190 10 L 200 0 L 280 0 L 300 20 L 300 130 L 280 150 L 200 150 L 190 140 L 110 140 L 100 150 L 20 150 L 0 130 L 0 20 Z";
+
+    -fx-background-color:
+            cyan,
+            rgba(0, 10, 20, 1);
+
+
+    -fx-background-insets: 0, 2, 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 255, 255, 0.8), 20, 0.5, 0, 0);
+    -fx-padding: 50 100 40 100;
+}
+
+.askButtonCard{
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-background-color: #1d6356;
+    -fx-font-smoothing-type: visible;
+    -fx-cursor: hand;
+    -fx-border-radius: 10px;
+}
+
+.playerNameContainer {
+    -fx-font-size: 24px;
+    -fx-text-fill: white;
+    -fx-font-family: arial;
+}

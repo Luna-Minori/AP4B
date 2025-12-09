@@ -1,191 +1,128 @@
 package Front_end;
 
-import javax.swing.*;
-import java.awt.*;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+
+import javax.swing.text.View;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-
-public class PlayerPanel extends JPanel {
-    private HandPanel handPanel; // Le panneau contenant les cartes du joueur
-    private TextPanel namePanel;
-    private TextPanel pointTextPanel;
-    private JButton setHandDown;
+public class PlayerPanel extends VBox {
+    private HandPanel handPanel;
+    private ViewHandler handler;
+    private StackPane nameLabelContainer;
+    private Label pointLabel;
+    private HBox buttons;
+    private StackPane handContainer;
     private ArrayList<Integer> hand;
     private String name;
-    private Consumer<Integer> CardClick;
-    private Consumer<Boolean> onHandDownClicked;
     private int point;
+    private Consumer<Integer> onCardClick;
+    private Consumer<Boolean> onHandDownClicked;
+    private boolean mainPlayer;
 
-    // Constructeur
-    public PlayerPanel(ArrayList<Integer> hand, String name, int point) {
-        setLayout(null);
-        setOpaque(true);
-        this.setBackground((new Color(255, 0, 0, 255))); // semi-transparent white background
-        // create Panel for player
+    public PlayerPanel(ArrayList<Integer> hand, String name, int point, boolean mainPlayer, ViewHandler viewHandler) {
+        handler = viewHandler;
         this.hand = hand;
         this.name = name;
         this.point = point;
-        createHandPanel();
-        TextPanel();
-        createHandDown();
-        add(handPanel);
-        add(namePanel);
-        add(pointTextPanel);
-        add(setHandDown);
-        adjustTextPanelSize();
-        adjustHandPanelSize(); // try to be responsive
-        adjustHandDown();
-    }
+        this.mainPlayer = mainPlayer;
 
-    private void adjustHandDown() {
-        // Ajuster la taille et la position du HandPanel
-        setHandDown.setBounds((int) (getWidth() * 0.05), (int) (getHeight() * 0.2), (int) (getWidth() * 0.2), (int) (getHeight() * 0.1));
-        repaint();
-    }
+        Label nameLabel = new Label(name);
+        nameLabel.getStyleClass().add("playerNameContainer");
+        nameLabelContainer = new StackPane(nameLabel);
 
-    private void createHandDown() {
-        setHandDown = new JButton("HandDown");
-        ImageIcon icon = new ImageIcon("./src/Front_end/handDown.png");
-        setHandDown.setIcon(icon);
-        setHandDown.setHorizontalTextPosition(SwingConstants.CENTER);
-        setHandDown.setVerticalTextPosition(SwingConstants.CENTER);
-        setHandDown.setFocusPainted(false);
-        setHandDown.setBorderPainted(false);
-        setHandDown.setContentAreaFilled(false);
-        setHandDown.setOpaque(false);
+        // Bouton HandDown
+        Button lowestButton = new Button("lowest");
+        lowestButton.setId("lowest");
+        lowestButton.getStyleClass().add("askButtonCard");
 
-        setHandDown.addActionListener(e -> {
-            if (onHandDownClicked != null) {
-                onHandDownClicked.accept(true);
+        Button highestButton = new Button("highest");
+        highestButton.setId("highest");
+        highestButton.getStyleClass().add("askButtonCard");
+
+        buttons = new HBox();
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        buttons.getChildren().addAll(lowestButton, spacer, highestButton);
+
+        lowestButton.setOnAction(e -> {if (handler != null) { handler.lowestRequested(name);}});
+        highestButton.setOnAction(e -> {if (handler != null) {handler.highestRequested(name);}});
+
+        // Créer la main du joueur
+        ArrayList<CardPanel> cards = new ArrayList<>();
+        for (Integer integer : hand) {
+            System.out.println("Player " + name + " is the mainPlayer : " + mainPlayer);
+            CardPanel card;
+            if (mainPlayer) {
+                card = new CardPanel(integer, true, true);
+            } else {
+                card = new CardPanel(integer, false, true);
             }
-        });
-        add(setHandDown);
-    }
-
-    private void adjustTextPanelSize() {
-        namePanel.setBounds((int) (getWidth() * 0.05), (int) (getHeight() * 0.7), namePanel.getText().length() * 30, (int) (getHeight() * 0.2));
-        pointTextPanel.setBounds((int) (getWidth() * 0.05), (int) (getHeight() * 0.5), pointTextPanel.getText().length() * 15, (int) (getHeight() * 0.2));
-    }
-
-    private void createHandPanel() {
-        // Créer une liste de chemins d'images pour les cartes
-        ArrayList<CardPanel> Card = new ArrayList<CardPanel>();
-        for (int i = 0; i < hand.size(); ++i) {
-            CardPanel temp = new CardPanel(hand.get(i), true, true, true);
-            int indexCard = i;
-            temp.setOnCardClicked(value -> {
-                if (CardClick != null) {
-                    System.out.println("Player pannel " + value);
-                    CardClick.accept(indexCard);
-                    //CardClick = null;
-                }
-            });
-            temp.setLayout(null);
-            Card.add(temp);
+            cards.add(card);
         }
+        handPanel = new HandPanel(cards, mainPlayer);
+        handContainer = new StackPane();
+        handContainer.getChildren().add(handPanel);
+        handContainer.getStyleClass().add("handPanel");
+        handContainer.prefWidthProperty().bind(widthProperty());
+        handContainer.prefHeightProperty().bind(heightProperty().multiply(0.7));
 
-        // Créer le panneau principal de la main de cartes
-        handPanel = new HandPanel(Card, true);
-    }
+        getChildren().addAll(nameLabelContainer, buttons, handContainer);
 
-    private void TextPanel() {
-        // Exemple de TextPanel pour afficher le nombre de tours restants
-        namePanel = new TextPanel(name);
-        int w = getWidth();
-        int h = getHeight();
-        float ratioMarginY = 0.05f;
-        int margeHeight = (int) (h * ratioMarginY);
-        int margeWidth = (int) (w / 2);
+        widthProperty().addListener((obs, oldV, newV) -> resize());
+        heightProperty().addListener((obs, oldV, newV) -> resize());
 
-        namePanel.setBounds(margeWidth, margeHeight, 300, 50); // Positionner le TextPanel
-        namePanel.setFont(new Font("Arial", Font.PLAIN, 34));
-        pointTextPanel = new TextPanel("Hand Points : " + point);
-        pointTextPanel.setBounds(10, 270, 220, 50);
-        pointTextPanel.setFont(new Font("Arial", Font.PLAIN, 20));
-    }
-
-    // Méthode pour ajuster la taille du HandPanel pour qu'il occupe un pourcentage de Front_Player
-    private void adjustHandPanelSize() {
-        float coefHeightHand = 0.8f; // hand of player use x % of the Panel front player
-        int marge = (int) (getWidth() * 0.05);
-
-        int xnamePanel = namePanel.getWidth() + marge;
-        int xpointTextPanel = pointTextPanel.getWidth() + marge;
-
-        int x;
-        if(xnamePanel > xpointTextPanel) {
-            x = (int) (xnamePanel *1.05);
+        URL url = getClass().getResource("/Front_end/assets/Player_back.png");
+        if (url != null) {
+            System.out.println("Image trouvée : " + url.toExternalForm());
         } else {
-            x = (int) (xpointTextPanel*1.05);
+            System.out.println("Image introuvable !");
         }
-        int y = (int) Math.ceil(getHeight() - getHeight() * coefHeightHand - getHeight() * 0.15);
-        int w = (int) Math.ceil((getWidth() - namePanel.getWidth() * 1.05) * 0.95);
-        int h = (int) Math.ceil(getHeight() * coefHeightHand);
-        // Ajuster la taille et la position du HandPanel
-        handPanel.setBounds(x, y, w, h);
     }
 
-    // Méthode pour redimensionner le Front_Player et ajuster le HandPanel
-    @Override
-    public void setBounds(int x, int y, int width, int height) {
-        super.setBounds(x, y, width, height);
-        adjustTextPanelSize();
-        adjustHandPanelSize();
-        adjustHandDown();
+    private void resize() {
+        double w = getWidth();
+        double h = getHeight();
+
+        nameLabelContainer.setPrefWidth(w);
+        nameLabelContainer.setLayoutY(h * 0.05);
+        nameLabelContainer.setAlignment(Pos.CENTER);
     }
 
-    protected void update(ArrayList<Integer> hand, String name, int point) {
-        this.name = name;
-        this.hand = hand;
+    public void updateHand(ArrayList<Integer> newHand) {
+        this.hand = newHand;
+        ArrayList<CardPanel> cards = new ArrayList<>();
+        for (int i = 0; i < newHand.size(); i++) {
+            if(mainPlayer) {
+                CardPanel card = new CardPanel(hand.get(i).intValue(), true, true);
+                cards.add(card);
+            }
+            else{
+                CardPanel card = new CardPanel(hand.get(i).intValue(), false, true);
+                cards.add(card);
+            }
+        }
+        handPanel.updateHand(cards, mainPlayer);
+    }
+
+    public void updatePoints(int point) {
         this.point = point;
-        updateTextPanel(point);
-        updateHandPanel();
-        adjustTextPanelSize();
-        adjustHandPanelSize();
-        adjustHandDown();
+        pointLabel.setText("Hand points: " + point);
     }
 
-
-    protected void updateHand(ArrayList<Integer> hand) {
-        this.hand = hand;
-        updateHandPanel();
-        adjustHandPanelSize();
+    public void setOnCardClick(Consumer<Integer> listener) {
+        this.onCardClick = listener;
     }
 
-    private void updateHandPanel() {
-        ArrayList<CardPanel> Card = new ArrayList<CardPanel>();
-        for (int i = 0; i < hand.size(); ++i) {
-            CardPanel temp = new CardPanel(hand.get(i), true, true, true);
-            temp.setLayout(null);
-            Card.add(temp);
-            int indexCard = i;
-            temp.setOnCardClicked(value -> {
-                if (CardClick != null) {
-                    CardClick.accept(indexCard);
-                }
-            });
-        }
-        handPanel.clear();
-        handPanel.update(Card, true);
-    }
-
-    private void updateTextPanel(int point) {
-        // Exemple de TextPanel pour afficher le nombre de tours restants
-        namePanel.setText(name);
-        pointTextPanel.setText("Hand points : " + point);
-        repaint();
-    }
-
-    public void playCardClick(Consumer<Integer> listener) {
-        this.CardClick = listener;
-    }
-
-    public void updateHandPoint(int point) {
-        updateTextPanel(point);
-    }
-
-    protected void setHandDownClicked(Consumer<Boolean> listener) {
+    public void setOnHandDownClicked(Consumer<Boolean> listener) {
         this.onHandDownClicked = listener;
     }
 }

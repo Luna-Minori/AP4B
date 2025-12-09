@@ -1,106 +1,87 @@
 package Front_end;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
 import Back_end.DTO.PlayerInfo;
+import javafx.geometry.Pos;
+import javafx.scene.layout.TilePane;
+import java.util.ArrayList;
 
-public class PlayerField extends JPanel {
+public class PlayerField extends TilePane {
+    private ViewHandler handler;
     private final ArrayList<PlayerPanel> playerPanels = new ArrayList<>();
     private ArrayList<PlayerInfo> playersInfo;
 
-    public PlayerField(ArrayList<PlayerInfo> players) {
-        this.playersInfo = players;
-        setLayout(null);
-        setOpaque(true);
-        setBackground(Color.BLUE);
-
+    public PlayerField(ArrayList<PlayerInfo> players, int mainPlayerIndex, ViewHandler viewHandler) {
+        handler = viewHandler;
+        playersInfo = players;
+        // Créer les panels pour chaque joueur
+        int i = 0;
         for (PlayerInfo p : players) {
-            PlayerPanel pp = new PlayerPanel(p.getHand(), p.getName(), p.getPointGame());
+            PlayerPanel pp;
+            if(i == mainPlayerIndex) {
+                pp = new PlayerPanel(p.getHand(), p.getName(), p.getPointGame(), true, handler);
+            }
+            else{
+                pp = new PlayerPanel(p.getHand(), p.getName(), p.getPointGame(), false, handler);
+            }
+            pp.getStyleClass().add("playerPanel");
             playerPanels.add(pp);
-            add(pp);
+            getChildren().add(pp);
+            i++;
         }
+
+        // Redimensionnement dynamique
+        widthProperty().addListener((obs, oldVal, newVal) -> layoutPlayers());
+        heightProperty().addListener((obs, oldVal, newVal) -> layoutPlayers());
     }
 
-    @Override
-    public void doLayout() {
-        super.doLayout();
-
+    private void layoutPlayers() {
         int totalPlayers = playerPanels.size();
+        int w = (int) getWidth();
+        int h = (int) getHeight();
+        setTileAlignment(Pos.CENTER);
+        setAlignment(Pos.CENTER);
 
-        for (int i = 0; i < totalPlayers; i++) {
-            Rectangle r = calculatePlayerPanelPosition(i, totalPlayers);
-            playerPanels.get(i).setBounds(r);
-        }
-    }
-
-    private Rectangle calculatePlayerPanelPosition(int index, int totalPlayers) {
-        int w = getWidth();
-        int h = getHeight();
-        float ratioMarginX = 0.01f;
-        float ratioMarginY = 0.02f;
-        int marginX = (int) (w * ratioMarginX);
-        int marginY = (int) (h * ratioMarginY);
-
-        int cols, rows;
-
-        if (totalPlayers <= 2) {
-            cols = 2;
-            rows = 1;
+        if (totalPlayers <= 2) { // Setup lA grille
+            setPrefColumns(2);
+            setPrefRows(1);
         } else if (totalPlayers <= 4) {
-            cols = 2;
-            rows = 2;
+            setPrefColumns(2);
+            setPrefRows(2);
         } else {
-            cols = 3;
-            rows = 2;
+            setPrefColumns(3);
+            setPrefRows(2);
         }
+        int cols = getPrefColumns();
+        int rows = getPrefRows();
 
-        int usableWidth  = w - (marginX * (cols + 1));
-        int usableHeight = h - (marginY * (rows + 1));
+        double marginX = w * 0.02;
+        double marginY = h * 0.02;
+        setHgap(marginX); // marge hori
+        setVgap(marginY); // verti
 
-        int cellWidth  = usableWidth / cols;
-        int cellHeight = usableHeight / rows;
+        double totalWidth  = w  - (cols + 1) * marginX;
+        double totalHeight = h - (rows + 1) * marginY;
+        double cellWidth  = totalWidth / cols; // taille de l'interface d'un joueur
+        double cellHeight = totalHeight / rows;
 
-        int col = index % cols;
-        int row = index / cols;
+        setPrefTileWidth(cellWidth);
+        setPrefTileHeight(cellHeight);
 
-        int x = marginX + col * (cellWidth + marginX);
-        int y = marginY + row * (cellHeight + marginY);
-        /*
-        //int cellWidth = w / cols - marginX;
-        //int cellHeight = (h - marginY) / rows;
-
-        int col = index % cols;
-        int row = index / cols;
-        System.out.println("row: " + row + ", col: " + col);
-
-        int x, y;
-        if(col == 0){
-            x = col * cellWidth + marginX;
+        for (PlayerPanel panel : playerPanels) {
+            panel.setPrefWidth(cellWidth);
+            panel.setPrefHeight(cellHeight);
+            panel.setMaxWidth(cellWidth);
+            panel.setMaxHeight(cellHeight);
         }
-        else if(col == 1){
-            x = col * cellWidth + marginX * cols;
-        }
-        else{
-            x = col * cellWidth + marginX * cols;
-        }
-
-        if(rows == 1){
-            y = row * cellHeight + marginY;
-        }
-        else{
-            y = row * cellHeight + marginY * rows;
-        }
-*/
-
-        System.out.println("player " + index + " position: (" + x + ", " + y + "), size: (" + cellWidth + ", " + cellHeight + ")");
-        return new Rectangle(x, y, cellWidth, cellHeight);
     }
 
     public void update(ArrayList<PlayerInfo> players) {
-        this.playersInfo = players;
-        // tu peux aussi mettre à jour les panels existants
-        revalidate();
-        repaint();
+        playersInfo = players;
+        // tu peux mettre à jour chaque PlayerPanelFX si nécessaire
+        layoutPlayers();
+    }
+
+    public void show() {
+        this.setVisible(true);
     }
 }

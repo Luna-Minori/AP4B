@@ -24,4 +24,5 @@ public class GameState {
 
     public ArrayList<PlayerInfo> getPlayers(){return players;}
     public ArrayList<Integer> getMiddleCards(){return middleCards;}
+    public int getCurrentPlayerIndex(){return currentPlayerIndex;}
 }

@@ -1,138 +1,122 @@
 package Front_end;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.scene.layout.Pane;
+import javafx.util.Duration;
+
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public class MiddleCardPanel extends JPanel {
-    private ArrayList<CardPanel> middleCard = new ArrayList<>();
-    private Consumer<Integer> clicked;
+public class MiddleCardPanel extends Pane {
+    private ViewHandler handler;
+    private final ArrayList<CardPanel> middleCards = new ArrayList<>();
+    private Consumer<Integer> onCardClicked;
 
-    public MiddleCardPanel(ArrayList<CardPanel> middleCards) {
-        setLayout(null);
-        setOpaque(true);
-        setBackground(new Color(0,255,0));
+    public MiddleCardPanel(ArrayList<CardPanel> cards, ViewHandler viewHandler) {
+        handler = viewHandler;
+        // Ajouter les cartes progressivement avec animation
+        this.getStyleClass().add("middleCardPanel");
+        Timeline timeline = new Timeline();
+        for (int i = 0; i < cards.size(); i++) {
+            final int index = i;
+            KeyFrame kf = new KeyFrame(Duration.millis(50 * i), e -> {
+                CardPanel card = cards.get(index);
+                middleCards.add(card);
+                getChildren().add(card);
+                layoutCards(); // Positionne toutes les cartes
 
-        int[] i = {0}; // Counter to iterate over the deck
-        Timer timer = new Timer(50, e -> {
-            if (i[0] < middleCards.size()) {
-                CardPanel card = middleCards.get(i[0]);
-                Rectangle bounds = calculateCardPosition(i[0], middleCards.size());
-                card.setBounds(bounds); // Set the card's position
-                this.middleCard.add(card);
-                this.add(card);
-                this.repaint();
-
-                // Add click handler on the first card
-                if (i[0] == 0) {
-                    card.setOnCardClicked((v) -> {
-                        if (clicked != null) {
+                // Ajouter le listener sur la première carte
+                if (index == 0) {
+                    /*card.setOnCardClicked(v -> {
+                        if (onCardClicked != null) {
                             System.out.println("Draw panel " + v);
-                            clicked.accept(v);
+                            onCardClicked.accept(v);
                         }
-                    });
+                    });*/
                 }
-                i[0]++;
-                addComponentListener(new ComponentAdapter() {
-                    @Override
-                    public void componentResized(ComponentEvent e) {
-                        updateCardPositions(); // Update card positions when resized
-                    }
+            });
+            timeline.getKeyFrames().add(kf);
+        }
+        timeline.play();
+
+        // Redimension dynamique
+        widthProperty().addListener((obs, oldVal, newVal) -> layoutCards());
+        heightProperty().addListener((obs, oldVal, newVal) -> layoutCards());
+    }
+
+    private void layoutCards() {
+        double w = getWidth();
+        double h = getHeight();
+        int n = middleCards.size();
+        if (n == 0) return;
+
+        // 1. Taille des cartes
+        // Au lieu de w/n, on utilise un ratio basé sur la hauteur pour ne pas déformer l'image
+        double cardHeight = h * 0.8;
+        double cardWidth = cardHeight * 0.7; // Ratio standard (0.7 environ pour une carte de jeu)
+
+        // 2. Calcul du décalage (offset) entre les cartes
+        double offset = cardWidth; // Ton paramètre d'origine
+
+        // 3. Calcul de la largeur TOTALE du groupe de cartes
+        // Formule : (NbCartes - 1) * Décalage + LargeurDernièreCarte
+        double totalGroupWidth = ((n - 1) * offset) + cardWidth;
+
+        // (Optionnel) Sécurité : Si le groupe est plus large que l'écran, on réduit l'offset
+        if (totalGroupWidth > w) {
+            offset = (w - cardWidth - 40) / (n - 1); // On compresse pour que ça rentre
+            totalGroupWidth = ((n - 1) * offset) + cardWidth;
+        }
+
+        // 4. Calcul du point de départ (X) pour centrer
+        double startX = (w - totalGroupWidth) / 2;
+
+        // 5. Placement
+        for (int i = 0; i < n; i++) {
+            CardPanel card = middleCards.get(i);
+            card.setPrefWidth(cardWidth);
+            card.setPrefHeight(cardHeight);
+
+            // Position X = Point de départ + (index * décalage)
+            card.setLayoutX(startX + (i * offset));
+
+            // Centrage vertical (déjà bon dans ton code)
+            card.setLayoutY((h - cardHeight) / 2);
+        }
+    }
+
+    public void setOnCardClicked(Consumer<Integer> listener) {
+        this.onCardClicked = listener;
+    }
+
+    public void updateCards(ArrayList<Integer> deck) {
+        getChildren().clear();
+        middleCards.clear();
+
+        for (int i = 0; i < deck.size(); i++) {
+            CardPanel card = new CardPanel(deck.get(i), false, true);
+            middleCards.add(card);
+            getChildren().add(card);
+        }
+        layoutCards();
+    }
+
+    public void updateDraw() {
+        if (!middleCards.isEmpty()) {
+            middleCards.remove(0);
+            getChildren().remove(0);
+            /*
+            if (!middleCards.isEmpty()) {
+                middleCards.get(0).setOnCardClicked(v -> {
+                    if (onCardClicked != null) onCardClicked.accept(v);
                 });
-            } else {
-                ((Timer) e.getSource()).stop(); // Stop the timer when all cards are drawn
-            }
-        });
-        timer.start(); // Start the timer to animate card drawing
-    }
-
-    /**
-     * Calcule la position d'une carte dans un arrangement en éventail ou en colonne.
-     *
-     * @param index L'index de la carte à positionner.
-     * @return Un rectangle représentant la position et la taille de la carte.
-     */
-    private Rectangle calculateCardPosition(int index, int numberOfCards) {
-        int w = getWidth();
-        int h = getHeight();
-
-        // Largeur disponible pour une carte
-        int cardWidth = w / numberOfCards;
-       // System.out.println("Card " + index + " width: " + w + " / " + numberOfCards + " = " + cardWidth);
-        int cardHeight = (int) (h * 0.8f); // hauteur occupée par la carte
-
-        // Position X basée sur l'index
-        int x = index * cardWidth;
-
-        // Centrage vertical
-        int y = (h - cardHeight) / 2;
-        //System.out.println("Card " + index + " position: (" + x + ", " + y + "), size: (" + cardWidth + ", " + cardHeight + ")");
-        return new Rectangle(x, y, cardWidth, cardHeight);
-    }
-
-    /**
-     * Updates the positions of all cards in the panel.
-     */
-    private void updateCardPositions() {
-        for (int i = 0; i < middleCard.size(); i++) {
-            CardPanel card = middleCard.get(i);
-            Rectangle bounds = calculateCardPosition(i, middleCard.size()); // Calculate new position
-            card.setBounds(bounds); // Set the card's new bounds
+            }*/
+            layoutCards();
         }
-        revalidate(); // Revalidate the layout
-        repaint(); // Repaint the panel
     }
 
-    /**
-     * Sets the callback for when a card in the draw panel is clicked.
-     *
-     * @param listener The listener to handle the click event.
-     */
-    public void drawClicked(Consumer<Integer> listener) {
-        this.clicked = listener;
-    }
-
-    protected void update(ArrayList<Integer> deck) {
-        for (CardPanel card : middleCard) {
-            this.remove(card); // Remove each card from the panel
-        }
-        middleCard.clear(); // Clear the list of card panels
-        for (int i = 0; i < deck.size(); ++i) {
-            CardPanel card = new CardPanel(deck.get(i), false, false, false);
-            Rectangle bounds = calculateCardPosition(i, middleCard.size());
-            card.setBounds(bounds); // Set the card's position
-            if (i == 0) {
-                card.setOnCardClicked((v) -> {
-                    if (clicked != null) {
-                        System.out.println("Draw panel " + v);
-                        clicked.accept(v);
-                    }
-                });
-            }
-            this.middleCard.add(card);
-            this.add(card);
-        }
-        revalidate(); // Revalidate the layout
-        repaint(); // Repaint the panel
-    }
-
-    /**
-     * Updates the draw panel by removing the first card and setting a new click listener if available.
-     */
-    protected void updateDraw() {
-        if (!middleCard.isEmpty()) {  // Check if the list is not empty
-            middleCard.remove(0);  // Remove the first card from the list
-            if (!middleCard.isEmpty()) {  // Check again if the list is not empty
-                middleCard.get(0).setOnCardClicked((v) -> {
-                    if (clicked != null) {
-                        System.out.println("Draw panel " + v);
-                        clicked.accept(v);
-                    }
-                });
-            }
-        }
+    public void show(){
+        this.setVisible(true);
     }
 }

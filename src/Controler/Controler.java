@@ -6,19 +6,25 @@ import Back_end.Model.Card;
 import Back_end.Model.Player;
 import Front_end.BoardPanel;
 import Front_end.Menu;
-
+import Front_end.ViewHandler;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
+import java.util.Objects;
+
 
 /**
  * Main game controller class that initializes and manages the game loop,
  * handles player turns (human and bot), and updates the front-end accordingly.
 **/
-public class Controler {
-    private static int currentPlayerIndex;
+public class Controler implements ViewHandler {
     private static Player currentPlayer;
-    private static Model board;
-    private static BoardPanel pB;
+    private static Model board = new Model();
+    private static Stage stage;
+    private static GameState info;
+    private static Scene menuScene;
+    private static Scene boardScene;
+    private static String cssPath = Objects.requireNonNull(Controler.class.getResource("/Front_end/style.css")).toExternalForm();
     private static boolean played;
     private static boolean ManyHuman = false;
     private static boolean noHuman = false;
@@ -28,12 +34,19 @@ public class Controler {
      * Main entry point of the game. Initializes players, starts the game loop,
      * and manages the turn logic.
      **/
+    public Controler(Stage st) {
+        stage = st;
+        Menu menu = new Menu(this);
+        menuScene = new Scene(menu, 1280, 720);
+        menuScene.getStylesheets().add(cssPath);
+        stage.setTitle("Trio UTBM");
+        stage.setFullScreen(true);
+        stage.setResizable(false);
+        stage.setScene(menuScene);
+        stage.show();
 
-    public static void main(String[] args) {
-        CountDownLatch latch = new CountDownLatch(1);
 
-        Menu menu = new Menu();
-        board = new Model();
+        //Menu menu = new Menu();
         /*
         menu.initGameReady((playerNames, nbBots) -> {
             for (String name : playerNames) {
@@ -50,28 +63,70 @@ public class Controler {
             }
             latch.countDown();
         }); */
-        ArrayList<String> playerNames = new ArrayList<String>();
-        playerNames.add("Player1");
-        playerNames.add("Player2");
-        playerNames.add("Player3");
-        playerNames.add("Player4");
-        playerNames.add("Player5");
-        playerNames.add("Player6");
-        for (String name : playerNames) {
-            board.addPlayer(new Player(name, true));
-        }
-        board.new_turn();
 
         ArrayList<ArrayList<Integer>> hands = createHandsFront(board);
         ArrayList<Integer> middleCard = createMiddleCardFront(board);
         ArrayList<Integer> points = createOfPoint(board);
         GameState info = board.getGameState();
-        BoardPanel pB = new BoardPanel(info);
 
+        //startView(stage, info);
+
+        /*
         try {
             latch.await();
         } catch (InterruptedException ex) {
             ex.printStackTrace();
+        }
+        */
+    }
+
+    @Override
+    public void gameStart(ArrayList<String> playerNames, int nbBots) {
+        System.out.println("Game started with players: " + playerNames + " and " + nbBots + " bots.");
+        for (String name : playerNames) {
+            board.addPlayer(new Player(name, true));
+        }
+        for (String name : playerNames) {
+            board.addPlayer(new Player("Bot", false));
+        }
+        board.new_turn();
+        updateInfo();
+        BoardPanel boardPanel = new BoardPanel(info, this);
+        boardScene = new Scene(boardPanel, 0, 0);
+        boardScene.getStylesheets().add(cssPath);
+        stage.setScene(boardScene);
+        stage.setFullScreen(true);
+        stage.setResizable(false);
+        stage.show();
+    }
+
+    @Override
+    public void lowestRequested(String playerName) {
+        System.out.println("Lowest Card Played");
+    }
+
+    @Override
+    public void highestRequested(String playerName) {
+        System.out.println("Higtest Card Played");
+
+
+    }
+
+
+    @Override
+    public void onQuitter() {
+
+    }
+
+    @Override
+    public void onAttaquer(String ennemiId) {
+
+    }
+    public void onUserAction(String actionId) {
+        switch (actionId) {
+            case "lowest" -> System.out.println("Lowest Card");
+            case "highest" -> System.out.println("Highest Card");
+            default -> System.out.println("Action inconnue : " + actionId);
         }
     }
 
@@ -105,6 +160,10 @@ public class Controler {
             points.add(p.getPointGame());
         }
         return points;
+    }
+
+    private static void updateInfo() {
+        info = board.getGameState();
     }
 }
 
