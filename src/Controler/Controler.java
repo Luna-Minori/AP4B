@@ -25,10 +25,10 @@ public class Controler implements ViewHandler {
     private static Scene menuScene;
     private static Scene boardScene;
     private static String cssPath = Objects.requireNonNull(Controler.class.getResource("/Front_end/style.css")).toExternalForm();
-    private static boolean played;
-    private static boolean ManyHuman = false;
-    private static boolean noHuman = false;
-    private static boolean end = false;
+//    private static boolean played;
+//    private static boolean ManyHuman = false;
+//    private static boolean noHuman = false;
+//    private static boolean end = false;
 
     /**
      * Main entry point of the game. Initializes players, starts the game loop,
@@ -118,10 +118,6 @@ public class Controler implements ViewHandler {
 
     }
 
-    @Override
-    public void onAttaquer(String ennemiId) {
-
-    }
     public void onUserAction(String actionId) {
         switch (actionId) {
             case "lowest" -> System.out.println("Lowest Card");
