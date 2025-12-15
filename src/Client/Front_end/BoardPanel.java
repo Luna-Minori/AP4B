@@ -1,7 +1,7 @@
 package Client.Front_end;
 
 import Common.DTO.GameState;
-//import Front_end.assets.*;
+//import Front_end.Client.Front_end.assets.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.Image;
 
@@ -22,7 +22,7 @@ import java.net.URL;
 
         // --- Settings button ---
         ImageView settingsIcon = new ImageView(
-                new Image(getClass().getResource("/Front_end/assets/Card_Back.png").toExternalForm())
+                new Image(getClass().getResource("/Front_end/Client.Front_end.assets/Card_Back.png").toExternalForm())
         );
         settingsIcon.setFitWidth(50);
         settingsIcon.setFitHeight(50);
@@ -69,7 +69,7 @@ public class BoardPanel extends VBox {
             );
 
             setBackground(new Background(bgImg));
-        } else { // sécurité si pas d'assets
+        } else { // sécurité si pas d'Client.Front_end.assets
             setStyle("-fx-background-color: linear-gradient(to bottom, #1e3c72, #2a5298);");
         }
         setUpGameField(info);

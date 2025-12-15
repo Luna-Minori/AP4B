@@ -85,9 +85,11 @@ public class Model {
     public void newGame() {
         Deck deck = new Deck();
         middleCard.clear();
+        int cartesParJoueur = deck.size() / (players.size() + 1);
+
         for (Player player : players) {
             player.getHand().clear();
-            for (int i = 0; i < deck.size() / players.size() + 1; i++) {
+            for (int i = 0; i < cartesParJoueur; i++) {
                 player.drawCard(deck.draw());
             }
         }

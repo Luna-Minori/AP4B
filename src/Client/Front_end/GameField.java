@@ -1,15 +1,13 @@
 package Client.Front_end;
 
-import Common.DTO.CardInfo;
 import javafx.scene.layout.Pane;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 public class GameField extends Pane {
     private ViewHandler handler;
     private MiddleCardPanel middleCardPanel;
 
-    public GameField(ArrayList<CardInfo> middleCards, ViewHandler viewHandler) {
+    public GameField(ArrayList<Integer> middleCards, ViewHandler viewHandler) {
         handler = viewHandler;
         createMiddleCardPanel(middleCards);
         getChildren().add(middleCardPanel);
@@ -18,10 +16,10 @@ public class GameField extends Pane {
         heightProperty().addListener((obs, oldVal, newVal) -> layoutMiddleCard());
     }
 
-    private void createMiddleCardPanel(ArrayList<CardInfo> deck) {
+    private void createMiddleCardPanel(ArrayList<Integer> deck) {
         ArrayList<CardPanel> cardPanels = new ArrayList<>();
-        for (CardInfo cardInfo : deck) {
-            CardPanel card = new CardPanel(cardInfo.getValue(), cardInfo.isRevealed());
+        for (Integer cardInfo : deck) {
+            CardPanel card = new CardPanel(cardInfo);
             cardPanels.add(card);
         }
         middleCardPanel = new MiddleCardPanel(cardPanels, handler);

@@ -1,6 +1,7 @@
 package Client;
 
 import Common.DTO.GameState;
+import Common.DTO.LobbyState;
 import Common.NetworkMessage;
 import Client.Controler.Controler;
 import javafx.application.Platform;
@@ -23,9 +24,9 @@ public class NetworkClient implements Runnable {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
-    public void send(String title, Object content) {
+    public void send(String title, String subTitle, Object content) {
         try {
-            out.writeObject(new NetworkMessage(title, content));
+            out.writeObject(new NetworkMessage(title, subTitle, content));
             out.flush();
         } catch (IOException e) { e.printStackTrace(); }
     }
@@ -35,18 +36,31 @@ public class NetworkClient implements Runnable {
         try {
             while (true) {
                 NetworkMessage msg = (NetworkMessage) in.readObject();
-                if (msg.title.equals("GAME_UPDATE")) {
-                    GameState newState = (GameState) msg.content;
-                    Platform.runLater(() -> {
-                        controler.updateFromNetwork(msg);
-                    });
+                if(msg.title.equals("LOBBY")){
+                    if(msg.subTitle.equals("UPDATE_STATE")) {
+                        LobbyState newState = (LobbyState) msg.content;
+                        for(int i = 0; i < newState.getMaxPlayers();i++) {
+                            System.out.println("lobby updated" + newState.getIsHuman().get(i));
+                        }
+                        Platform.runLater(() -> {
+                            controler.updatelobby(newState);
+                        });
+                    }
                 }
-                if(msg.title.equals("GAME_START")) {
-                    GameState newState = (GameState) msg.content;
-
-                    Platform.runLater(() -> {
-                        controler.handleGameStart(newState);
-                    });
+                if(msg.title.equals("GAME")) {
+                    if (msg.subTitle.equals("UPDATE")) {
+                        GameState newState = (GameState) msg.content;
+                        Platform.runLater(() -> {
+                            controler.updateFromNetwork(msg);
+                        });
+                    }
+                    if (msg.subTitle.equals("START")) {
+                        GameState newState = (GameState) msg.content;
+                        System.out.println("Ouiiiiiiiiiiiiiiiiiiiiiiiii");
+                        Platform.runLater(() -> {
+                            controler.handleGameStart(newState);
+                        });
+                    }
                 }
             }
         } catch (Exception e) { e.printStackTrace(); }

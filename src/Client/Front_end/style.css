@@ -18,6 +18,95 @@
     -fx-background-color: rgba(255,255,255,0.2);
 }
 
+#askNameOverlay {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-border-radius: 5px;
+    -fx-padding: 25;
+}
+
+.titleLabel {
+    -fx-font-size: 60px;
+    -fx-text-fill: white;
+    -fx-font-smoothing-type: visible;
+}
+
+.setNameButton {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-font-smoothing-type: visible;
+    -fx-cursor: hand;
+    -fx-border-radius: 10px;
+}
+
+.setNameInputText {
+    -fx-background-color: #f0f2f5;
+    -fx-background-radius: 8px;
+    -fx-border-color: transparent;
+    -fx-padding: 10px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+.setNameInputText:focused {
+    -fx-background-color: white;
+    -fx-border-color: #4A90E2;
+    -fx-border-radius: 8px;
+    -fx-border-width: 2px;
+}
+
+#lobbyPane{
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-border-radius: 5px;
+    -fx-padding: 25;
+}
+
+.lobbyTitle{
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.playerCard {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-radius: 10;
+    -fx-border-width: 3;
+    -fx-border-radius: 10;
+}
+
+.emptyCard {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-style: dashed;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-cursor: hand;
+    -fx-transition: all 0.3s;
+}
+.emptyCard:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-border-color: #3498db;
+    -fx-border-style: solid;
+}
+
+.emptyLabel {
+    -fx-text-fill: rgba(255,255,255,0.5);
+    -fx-font-size: 14px;
+}
+
+.BotButton {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-padding: 5 15 5 15;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.BotButton:hover {
+    -fx-background-color: #2980b9;
+}
+
 #middle-card-field {
 }
 

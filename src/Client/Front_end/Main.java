@@ -26,7 +26,7 @@ public class Main extends Application {
         stage.setTitle("Trio UTBM");
         stage.setScene(scene);
 
-        //Image gif = new Image(getClass().getResource("/Front_end/assets/animated.gif").toExternalForm());
+        //Image gif = new Image(getClass().getResource("/Front_end/Client.Front_end.assets/animated.gif").toExternalForm());
         //ImageView gifView = new ImageView((Element) gif);
 
 

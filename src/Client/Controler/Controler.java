@@ -1,7 +1,10 @@
 package Client.Controler;
 
+import Client.Front_end.Menu.Lobby;
 import Client.NetworkClient;
 import Common.DTO.GameState;
+import Common.DTO.LobbyState;
+import Common.DTO.PlayerInfo;
 import Common.NetworkMessage;
 import Client.Front_end.BoardPanel;
 import Client.Front_end.Menu.Menu;
@@ -9,7 +12,7 @@ import Client.Front_end.ViewHandler;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import java.util.ArrayList;
+
 import java.util.Objects;
 
 
@@ -19,12 +22,15 @@ import java.util.Objects;
 **/
 public class Controler implements ViewHandler {
     private NetworkClient network;
-    private static Stage stage;
-    private static GameState info;
+    private String ip = "127.1.0.0";
+    private int port = 12345;
+    private final Stage stage;
+    private static GameState gameInfo;
+    private static LobbyState lobbyInfo;
     private BoardPanel boardPanel;
+    private Lobby lobbyPanel;
     private static Scene menuScene;
     private static final String cssPath = Objects.requireNonNull(Controler.class.getResource("/Client/Front_end/style.css")).toExternalForm();
-    private int myClientId;
 //    private static boolean played;
 //    private static boolean ManyHuman = false;
 //    private static boolean noHuman = false;
@@ -35,11 +41,7 @@ public class Controler implements ViewHandler {
      * and manages the turn logic.
      **/
     public Controler(Stage stage) {
-        //Network
-        String ip = "127.1.0.0";
-        int port = 12345;
-        network = new NetworkClient(ip, port, this);
-
+        this.stage = stage;
         // Menu
         Menu root = new Menu(this);
         Scene scene = new Scene(root, 800, 600);
@@ -52,19 +54,69 @@ public class Controler implements ViewHandler {
         stage.setScene(scene);
         stage.show();
 
-
+    }
+    // Lobby
+    @Override
+    public void setName(String name) {
+        System.out.println("Sending name to server: " + name);
+        network.send("LOBBY", "PLAYER_NAME", name);
     }
 
     @Override
-    public void Ready(String name) {
-        network.send("PLAYER_READY", name);
+    public void Ready(){
+        network.send("LOBBY", "PLAYER_READY", null);
     }
 
-    public void handleGameStart(GameState receivedState) {
-        info = receivedState;
+    @Override
+    public void addBot(){
+        network.send( "LOBBY","ADD_BOT", null);
+    }
 
+    @Override
+    public void removeBot(){
+        network.send( "LOBBY","REMOVE_BOT", null);
+    }
+
+    @Override
+    public void startLobby() {
+        //Network
+        network = new NetworkClient(ip, port, this);
+
+        lobbyPanel = new Lobby(this);
+        Scene lobbyScene = new Scene(lobbyPanel, 0, 0);
+
+        // Gestion du CSS
+        if (cssPath != null) {
+            lobbyScene.getStylesheets().add(cssPath);
+        }
+
+        stage.setScene(lobbyScene);
+        stage.setFullScreen(true);
+        stage.setResizable(true);
+        stage.show();
+    }
+
+    public void updatelobby(LobbyState lobbyState) {
+        System.out.println("Updating lobby: " + lobbyState);
+        for(String n : lobbyState.getName()){
+            System.out.println("Player in lobby: " + n);
+        }
+        lobbyInfo = lobbyState;
+        lobbyPanel.update(lobbyInfo);
+    }
+
+    // Game
+    public void handleGameStart(GameState receivedState) {
+        gameInfo = receivedState;
+
+        for(PlayerInfo p : gameInfo.getPlayers()){
+            System.out.println("Player in game: " + p.getName());
+            for(Integer c : p.getHand()){
+                System.out.println("Card in hand: " + c);
+            }
+        }
         Platform.runLater(() -> {
-            boardPanel = new BoardPanel(info, this);
+            boardPanel = new BoardPanel(gameInfo, this);
             Scene boardScene = new Scene(boardPanel, 0, 0);
 
             // Gestion du CSS
@@ -89,12 +141,12 @@ public class Controler implements ViewHandler {
 
     @Override
     public void lowestRequested(int playerId) {
-        network.send("ASK_LOWEST", playerId);
+        network.send("GAME", "ASK_LOWEST", playerId);
     }
 
     @Override
     public void highestRequested(int playerId) {
-        network.send("ASK_HIGHEST", playerId);
+        network.send("GAME","ASK_HIGHEST", playerId);
     }
 
     @Override

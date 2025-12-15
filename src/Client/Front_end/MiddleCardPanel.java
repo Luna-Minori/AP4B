@@ -79,7 +79,7 @@ public class MiddleCardPanel extends Pane {
         middleCards.clear();
 
         for (int i = 0; i < deck.size(); i++) {
-            CardPanel card = new CardPanel(deck.get(i), false);
+            CardPanel card = new CardPanel(deck.get(i));
             middleCards.add(card);
             getChildren().add(card);
         }

@@ -7,11 +7,16 @@ public interface ViewHandler {
     void onQuitter();
 
     // Lobby
-    void Ready(String name);
-
+    void startLobby();
+    void setName(String name);
+    void Ready();
+    void addBot();
+    void removeBot();
     // Jeu
     void lowestRequested(int playerId);
     void highestRequested(int playerId);
     void middleCardRequested();
+
+
 }
 

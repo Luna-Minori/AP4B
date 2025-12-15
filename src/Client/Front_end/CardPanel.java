@@ -13,19 +13,18 @@ public class CardPanel extends StackPane {
 
     private ImageView frontView;
     private boolean front;
-    private final int value;
+    private final Integer value;
     private boolean animationPlayed;
 
-    public CardPanel(int value, boolean front) {
+    public CardPanel(Integer value) {
         this.value = value;
-
-        if(front) {
-            frontView = new ImageView(new Image((Objects.requireNonNull(getClass().getResource("/assets/Card_" + 1 + ".png")))
+        if(value != null) {
+            frontView = new ImageView(new Image((Objects.requireNonNull(getClass().getResource("/Client/Front_end/assets/Card_" + 1 + ".png")))
                     .toExternalForm()
             ));
         }
         else{
-            frontView = new ImageView(new Image((Objects.requireNonNull(getClass().getResource("/Front_end/assets/Card_Back.png")))
+            frontView = new ImageView(new Image((Objects.requireNonNull(getClass().getResource("/Client/Front_end/assets/Card_Back.png")))
                     .toExternalForm()
             ));
         }
@@ -84,17 +83,16 @@ public class CardPanel extends StackPane {
     }
 
     public void flip() {
-        System.out.println("Flip card " + value);
         front = !front;
         updateImage();
     }
 
     private void updateImage() {
         String path;
-        if (front) {
-            path = "/assets/Card_" + 1 + ".png";
+        if (value != null) {
+            path = "/Client/Front_end/assets/Card_" + 1 + ".png";
         } else {
-            path = "/assets/Card_Back.png";
+            path = "/Client/Front_end/assets/Card_Back.png";
         }
         Platform.runLater(() -> {
             try {

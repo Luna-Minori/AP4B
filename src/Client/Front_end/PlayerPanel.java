@@ -1,8 +1,6 @@
 package Client.Front_end;
 
-import Common.DTO.CardInfo;
 import Common.DTO.PlayerInfo;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,16 +14,16 @@ public class PlayerPanel extends VBox {
     private final ViewHandler handler;
     private StackPane nameLabelContainer;
     private Label pointLabel;
-    private ArrayList<CardInfo> hand;
+    private ArrayList<Integer> hand;
     private HandPanel askedCards;
     private String name;
 
     public PlayerPanel(PlayerInfo playerInfo, ViewHandler viewHandler) {
         handler = viewHandler;
         playerId = playerInfo.getId();
-        createNameLabel(name);
-        createButtons(name);
-        createHand(hand);
+        createNameLabel(playerInfo.getName());
+        createButtons();
+        createHand(playerInfo.getHand());
 
         widthProperty().addListener((obs, oldV, newV) -> resize());
         heightProperty().addListener((obs, oldV, newV) -> resize());
@@ -51,14 +49,15 @@ public class PlayerPanel extends VBox {
         getChildren().add(nameLabelContainer);
     }
 
-    private void createHand() {
-        createHand(null);
-    }
-
-    private void createHand(ArrayList<CardInfo> hand) {
+    private void createHand(ArrayList<Integer> hand) {
         ArrayList<CardPanel> cards = new ArrayList<>();
-        for (CardInfo cardInfo : hand) {
-            CardPanel card = new CardPanel(cardInfo.getValue(), cardInfo.isRevealed());
+
+        for(Integer i : hand){
+            System.out.println("hand card value sent to client: " + i);
+        }
+
+        for (Integer cardInfo : hand) {
+            CardPanel card = new CardPanel(cardInfo);
             cards.add(card);
         }
 
@@ -72,7 +71,7 @@ public class PlayerPanel extends VBox {
         getChildren().add(handContainer);
     }
 
-    private void createButtons(String name){
+    private void createButtons(){
         // Bouton HandDown
         Button lowestButton = new Button("lowest");
         lowestButton.setId("lowest");
@@ -101,10 +100,10 @@ public class PlayerPanel extends VBox {
         nameLabelContainer.setAlignment(Pos.CENTER);
     }
 
-    public void updateHand(ArrayList<CardInfo> newHand) {
+    public void updateHand(ArrayList<Integer> newHand) {
         ArrayList<CardPanel> cards = new ArrayList<>();
-        for (CardInfo cardInfo : newHand) {
-            CardPanel card = new CardPanel(cardInfo.getValue(), cardInfo.isRevealed());
+        for (Integer cardInfo : newHand) {
+            CardPanel card = new CardPanel(cardInfo);
             cards.add(card);
         }
         handPanel.updateHand(cards);

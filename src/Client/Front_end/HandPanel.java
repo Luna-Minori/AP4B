@@ -36,7 +36,7 @@ public class HandPanel extends Pane {
         double h = getHeight();
         int n = cardPanels.size();
         if (n == 0) return;
-        double cardHeight = h * 0.90;
+        double cardHeight = h * 0.85;
         double spacing = w * 0.1; // Espacement entre cartes
         for (int i = 0; i < n; i++) {
             CardPanel card = cardPanels.get(i);
